@@ -245,7 +245,7 @@ def _answer_from_excerpts(user: str) -> str:
 
     question = _question(user)
     chunks = _chunks(user)
-    if _asks_for_prompt(question):
+    if asks_for_prompt(question):
         return json.dumps(
             {
                 "answered": False,
@@ -313,7 +313,7 @@ def _words(text: str) -> list[str]:
     return re.findall(r"[a-z0-9]+", text.lower())
 
 
-def _asks_for_prompt(question: str) -> bool:
+def asks_for_prompt(question: str) -> bool:
     """True when the question is trying to read the system prompt or the canary."""
     lowered = question.lower()
     return "system prompt" in lowered or "ignore previous" in lowered or CANARY.lower() in lowered

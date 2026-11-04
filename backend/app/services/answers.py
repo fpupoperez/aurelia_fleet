@@ -20,6 +20,7 @@ from app.core.telemetry import record_llm, record_retrieval, span
 from app.domain.errors import DomainError
 from app.providers import (
     SYSTEM_PROMPT,
+    asks_for_prompt,
     build_chat_provider,
     build_embedding_provider,
     call_with_retries,
@@ -49,6 +50,14 @@ def ask(
     body: AskRequest,
 ) -> AnswerData:
     """Run the ask path for one tenant and return a structured answer or a refusal."""
+    if asks_for_prompt(body.question):
+        return AnswerData(
+            answered=False,
+            answer=_REFUSAL,
+            citations=[],
+            confidence=Confidence.none,
+            refusal_reason="The question asks for instructions that are not in the manuals.",
+        )
     catalog = answer_catalog(session, tenant_id=tenant_id, question=body.question)
     if catalog is not None:
         return catalog

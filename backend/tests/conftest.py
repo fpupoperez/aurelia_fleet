@@ -77,10 +77,17 @@ def migrated(settings: Settings) -> Settings:
 
 @pytest.fixture()
 def spans() -> abc.Iterator[InMemorySpanExporter]:
+    """Record spans for one test.
+
+    The process accepts a tracer provider only once. Later tests attach another
+    in-memory exporter to that provider instead of replacing it.
+    """
     exporter = InMemorySpanExporter()
-    provider = TracerProvider()
+    provider = trace.get_tracer_provider()
+    if not isinstance(provider, TracerProvider):
+        provider = TracerProvider()
+        trace.set_tracer_provider(provider)
     provider.add_span_processor(SimpleSpanProcessor(exporter))
-    trace.set_tracer_provider(provider)
     yield exporter
     exporter.clear()
 

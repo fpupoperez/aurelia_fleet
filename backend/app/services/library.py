@@ -64,7 +64,12 @@ def upload(
     if not raw:
         raise DomainError("The file is empty.", status_code=400)
     stored_type = classify(filename, media_type)
-    identity = read_identity(raw, filename, stored_type)
+    try:
+        identity = read_identity(raw, filename, stored_type)
+    except DomainError:
+        # A file that cannot be previewed still gets a job. Ingest records the failure.
+        # Names the caller typed still win; a blank preview does not block that.
+        identity = ManualIdentity(maker="", equipment_model="", title="")
     equipment_model, maker, title, language = resolved_metadata(metadata, identity)
     digest = hashlib.sha256(raw).hexdigest()
     existing = session.scalar(
