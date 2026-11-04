@@ -1,0 +1,92 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      plan: ${{ steps.select.outputs.plan }}
+      backend: ${{ steps.select.outputs.backend }}
+      frontend: ${{ steps.select.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Choose the suites this change needs
+        id: select
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_BEFORE: ${{ github.event.before }}
+        run: python scripts/select_tests.py --github-output
+
+  selector:
+    needs: plan
+    if: needs.plan.outputs.plan == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Test the suite selector
+        run: python -m pytest scripts/test_select_tests.py
+
+  pytest:
+    needs: plan
+    if: needs.plan.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: aurelia
+          POSTGRES_PASSWORD: aurelia
+          POSTGRES_DB: aurelia
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U aurelia -d aurelia"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgresql+psycopg://aurelia:aurelia@localhost:5432/aurelia
+      LLM_PROVIDER: fake
+      EMBEDDING_PROVIDER: fake
+      CELERY_TASK_ALWAYS_EAGER: "true"
+      SEED_CORPUS: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+      - name: Run unit, integration, and retrieval evaluation
+        working-directory: backend
+        run: python -m pytest
+
+  frontend:
+    needs: plan
+    if: needs.plan.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+      - name: Run the UI tests
+        working-directory: frontend
+        run: npm test

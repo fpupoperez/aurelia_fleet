@@ -1,0 +1,19 @@
+---
+description: Python conventions for the API, worker, MCP, and scripts
+globs: "{backend,worker,mcp,scripts}/**/*.py"
+alwaysApply: false
+---
+
+# Python
+
+- Ruff select is E4, E7, E9, F. Line length 110 is not enforced as E501. Do not reformat unrelated files.
+- Mypy covers `backend/app`, `worker`, `mcp/server.py`, and `scripts`. Tests and migrations are excluded. Pydantic models use field names, not aliases, at call sites.
+- `mcp/server.py` and `worker/celery_app.py` may import after editing `sys.path` (E402 is ignored there).
+- Raise `DomainError` in services. The API maps it to the envelope. Ingest uses `PermanentIngestError` or `TransientIngestError`.
+- New retrieval behavior needs a unit test that does not request the `migrated` fixture unless you are using a database that is safe to truncate.
+- Keep `operationId` values stable. MCP tools are named after them.
+
+```python
+# A typed upload wins. An empty field is filled from the file.
+equipment_model = (metadata.equipment_model or "").strip() or identity.equipment_model
+```

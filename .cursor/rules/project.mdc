@@ -1,0 +1,17 @@
+---
+description: How to work in the Aurelia Fleet manuals repo without rereading every service
+alwaysApply: true
+---
+
+# Aurelia Fleet
+
+Start at `AGENTS.md`. Open only the service README for the code you are changing. Use `DECISIONS.md` when a threshold or a refusal looks arbitrary.
+
+- JSON envelope is `{session_auth, errors, success, data}`. `GET /documents/{id}/file` returns the file.
+- Providers are `fake` or `litellm`. Compose uses LiteLLM and host Ollama (`llama3.1:8b`, embeddings `all-minilm`). Tests force `fake`.
+- `fake` returns comparison and lexical answers directly. `litellm` writes the prose and must not contradict a checked reading.
+- Chunks are 800 characters with 120 of overlap, and they do not cross a page.
+- Vectors are 384-wide. Do not point embeddings at a 768-dimension model without a migration.
+- Do not run the full backend pytest suite against the Compose database. It truncates the library. Run the test module you changed.
+- Markdown-only edits do not need a test run.
+- Do not mass-format with Ruff. Do not commit `infra/.env`.

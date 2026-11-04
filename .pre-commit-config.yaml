@@ -1,0 +1,24 @@
+minimum_pre_commit_version: "4.0.1"
+default_install_hook_types: [pre-commit, pre-push]
+
+repos:
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff
+        entry: backend/.venv/bin/ruff check --force-exclude
+        language: system
+        types: [python]
+        stages: [pre-commit, pre-push]
+      - id: ruff-format
+        name: ruff format
+        entry: backend/.venv/bin/ruff format --force-exclude
+        language: system
+        types: [python]
+        stages: [pre-commit]
+      - id: mypy
+        name: mypy
+        entry: backend/.venv/bin/mypy
+        language: system
+        types: [python]
+        stages: [pre-push]

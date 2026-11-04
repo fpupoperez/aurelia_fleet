@@ -1,0 +1,13 @@
+---
+description: React UI conventions for the technician app
+globs: frontend/src/**/*.{js,jsx}
+alwaysApply: false
+---
+
+# Frontend
+
+- Talk to the API only through `src/api.js`. Paths are under `/api/v1`.
+- Upload fills maker, model, and title from `POST /documents/identity`. Omit empty metadata fields.
+- Downloads use `/api/v1/documents/{id}/file`. Do not load the file into memory to offer it.
+- Tests use Vitest, happy-dom, and Testing Library. Mock `./api` in page tests. Coverage thresholds are lines 85, statements 85, branches 80, functions 75.
+- After a behavior change, rebuild the frontend image if the user is on port 5173. The container does not mount this source.

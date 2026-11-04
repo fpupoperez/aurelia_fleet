@@ -1,0 +1,13 @@
+---
+description: Docker Compose and local model settings
+globs: infra/**/*.{yml,yaml,env}
+alwaysApply: false
+---
+
+# Infra
+
+- Compose variable substitution uses `infra/.env`. Never commit secrets there.
+- Code is copied into images. Rebuild the service you changed. Recreate it when only env changed.
+- Original files are the `aurelia_uploads` volume at `/app/data/uploads`, named by SHA-256. Wiping the `documents` table does not delete those files.
+- Langfuse keys on the API are the project keys that send traces. `LANGFUSE_INIT_*` in the compose file only bootstraps a fresh Langfuse database.
+- Chat and embeddings both use LiteLLM and host Ollama: `openai/llama3.1:8b` and `openai/all-minilm` at `http://host.docker.internal:11434/v1`, key `ollama`. `all-minilm` is 384 dimensions. Do not point embeddings at `nomic-embed-text`.

@@ -1,0 +1,5 @@
+frontend:
+  stage: test
+  image: node:22
+  script:
+    - cd frontend && npm ci && npm test

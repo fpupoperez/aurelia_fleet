@@ -1,0 +1,36 @@
+# Same suite selection as GitHub Actions. The plan job writes a child pipeline
+# that contains only the suites this change needs, so a document-only change
+# does not start pytest or the frontend tests.
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+
+stages:
+  - plan
+  - test
+
+plan:
+  stage: plan
+  image: python:3.11-slim
+  variables:
+    GIT_DEPTH: "0"
+  script:
+    - apt-get update && apt-get install -y --no-install-recommends git
+    - python scripts/select_tests.py --gitlab-child child.yml
+  artifacts:
+    paths:
+      - child.yml
+
+tests:
+  stage: test
+  needs:
+    - plan
+  trigger:
+    include:
+      - artifact: child.yml
+        job: plan
+    strategy: depend

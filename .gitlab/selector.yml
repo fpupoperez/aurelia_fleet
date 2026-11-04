@@ -1,0 +1,6 @@
+selector:
+  stage: test
+  image: python:3.11-slim
+  script:
+    - pip install pytest
+    - python -m pytest scripts/test_select_tests.py

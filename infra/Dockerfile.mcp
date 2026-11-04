@@ -1,0 +1,11 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+COPY backend/requirements.txt /tmp/backend.txt
+COPY mcp/requirements.txt /tmp/mcp.txt
+RUN pip install --no-cache-dir -r /tmp/backend.txt && pip install --no-cache-dir mcp==1.9.4
+COPY backend /app/backend
+COPY mcp /app/mcp
+ENV PYTHONPATH=/app/backend
+EXPOSE 8001
+CMD ["python", "/app/mcp/server.py"]

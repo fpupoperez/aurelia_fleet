@@ -1,0 +1,29 @@
+[
+  {
+    "question": "What is the minimum brake pad thickness on the Aurelia Hauler HX-200?",
+    "equipmentModel": "HX-200",
+    "expectSnippet": "4.2 mm",
+    "expectAbstain": false,
+    "k": 5
+  },
+  {
+    "question": "How much oil does the HX-200 hydraulic reservoir hold?",
+    "equipmentModel": "HX-200",
+    "expectSnippet": "18 litres",
+    "expectAbstain": false,
+    "k": 5
+  },
+  {
+    "question": "What torque does the TU-9 telemetry antenna require?",
+    "equipmentModel": "TU-9",
+    "expectSnippet": "8 Nm",
+    "expectAbstain": false,
+    "k": 5
+  },
+  {
+    "question": "What is the cabin paint color of the ZX-1?",
+    "equipmentModel": null,
+    "expectAbstain": true,
+    "k": 5
+  }
+]
